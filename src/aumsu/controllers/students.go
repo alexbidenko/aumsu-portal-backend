@@ -20,7 +20,7 @@ type CreatingMessage struct {
 }
 
 func InitStudents(r *mux.Router) {
-	r.HandleFunc("/Login", authorization).Methods("POST")
+	r.HandleFunc("/login", authorization).Methods("POST")
 	r.HandleFunc("/messages/last", getLastMessage).Methods("GET")
 	r.HandleFunc("/messages", sendMessage).Methods("POST")
 }
