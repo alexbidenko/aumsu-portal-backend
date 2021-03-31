@@ -22,3 +22,9 @@ func (messageModel MessageModel) GetLast() (entities.Message, error) {
 func (messageModel MessageModel) Create(model *entities.Message) {
 	dif.DB.Model(&entities.Message{}).Create(model)
 }
+
+func (messageModel MessageModel) All() []entities.Message {
+	var messages []entities.Message
+	dif.DB.Model(&entities.Message{}).Limit(40).Find(messages)
+	return messages
+}

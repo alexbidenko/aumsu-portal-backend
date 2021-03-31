@@ -23,6 +23,7 @@ func InitStudents(r *mux.Router) {
 	r.HandleFunc("/login", authorization).Methods("POST")
 	r.HandleFunc("/messages/last", getLastMessage).Methods("GET")
 	r.HandleFunc("/messages", sendMessage).Methods("POST")
+	r.HandleFunc("/messages", getMessages).Methods("GET")
 }
 
 func authorization(w http.ResponseWriter, r *http.Request) {
@@ -44,12 +45,29 @@ func authorization(w http.ResponseWriter, r *http.Request) {
 	w.Write(response)
 }
 
+func getMessages(w http.ResponseWriter, r *http.Request) {
+	token := r.Header.Get("Authorization")
+
+	var studentModule models.StudentModel
+	_, err := studentModule.GetByToken(token)
+	if token == "" || err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	var messageModel models.MessageModel
+	messages := messageModel.All()
+
+	response, _ := json.Marshal(messages)
+	w.Write(response)
+}
+
 func getLastMessage(w http.ResponseWriter, r *http.Request) {
 	token := r.Header.Get("Authorization")
 
 	var studentModule models.StudentModel
 	student, err := studentModule.GetByToken(token)
-	if err != nil {
+	if token == "" || err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -75,7 +93,7 @@ func sendMessage(w http.ResponseWriter, r *http.Request) {
 
 	var studentModule models.StudentModel
 	student, err := studentModule.GetByToken(token)
-	if err != nil {
+	if token == "" || err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
