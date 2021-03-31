@@ -25,6 +25,6 @@ func (messageModel MessageModel) Create(model *entities.Message) {
 
 func (messageModel MessageModel) All() []entities.Message {
 	var messages []entities.Message
-	dif.DB.Model(&entities.Message{}).Limit(40).Find(messages)
+	dif.DB.Model(&entities.Message{}).Limit(40).Find(&messages)
 	return messages
 }
