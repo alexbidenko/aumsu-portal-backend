@@ -1,0 +1,61 @@
+version: "3.8"
+
+services:
+
+  postgres:
+    restart: unless-stopped
+    image: postgres:9.5-alpine
+    volumes:
+      - "postgres-data:/var/lib/postgresql/data"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    ports:
+      - 6432:5432
+    networks:
+      - app_network
+
+  adminer:
+    restart: unless-stopped
+    image: adminer
+    ports:
+      - 7543:8080
+    networks:
+      - app_network
+
+  go_application:
+    restart: unless-stopped
+    build: "."
+    depends_on:
+      - "postgres"
+    expose:
+      - 8010
+    volumes:
+      - "preview-images:/var/www/files-preview"
+      - "model-files:/var/www/files-model"
+    networks:
+      - app_network
+
+  nginx:
+    restart: unless-stopped
+    build: "./.nginx"
+    container_name: aumsu_backend
+    depends_on:
+      - "go_application"
+    expose:
+      - 80
+    networks:
+      - app_network
+      - server
+
+volumes:
+  postgres-data:
+  preview-images:
+  model-files:
+
+networks:
+  app_network:
+    driver: bridge
+  server:
+    external: true

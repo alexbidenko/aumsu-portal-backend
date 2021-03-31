@@ -1,0 +1,112 @@
+package controllers
+
+import (
+	"aumsu/entities"
+	models "aumsu/modules"
+	"encoding/json"
+	"fmt"
+	"github.com/gorilla/mux"
+	"github.com/pusher/pusher-http-go"
+	"net/http"
+)
+
+type Authorization struct {
+	Login    string
+	Password string
+}
+
+type CreatingMessage struct {
+	Message string
+}
+
+func InitStudents(r *mux.Router) {
+	r.HandleFunc("/Login", authorization).Methods("POST")
+	r.HandleFunc("/messages/last", getLastMessage).Methods("GET")
+	r.HandleFunc("/messages", sendMessage).Methods("POST")
+}
+
+func authorization(w http.ResponseWriter, r *http.Request) {
+	var data Authorization
+	err := json.NewDecoder(r.Body).Decode(&data)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	var studentModule models.StudentModel
+	student, err := studentModule.Authorization(data.Login, data.Password)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	response, _ := json.Marshal(student)
+	w.Write(response)
+}
+
+func getLastMessage(w http.ResponseWriter, r *http.Request) {
+	token := r.Header.Get("Authorization")
+
+	var studentModule models.StudentModel
+	student, err := studentModule.GetByToken(token)
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	if student.Status != "user" {
+		w.WriteHeader(http.StatusConflict)
+		return
+	}
+
+	var messageModule models.MessageModel
+	message, err := messageModule.GetLast()
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	response, _ := json.Marshal(message)
+	w.Write(response)
+}
+
+func sendMessage(w http.ResponseWriter, r *http.Request) {
+	token := r.Header.Get("Authorization")
+
+	var studentModule models.StudentModel
+	student, err := studentModule.GetByToken(token)
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	var data CreatingMessage
+	err = json.NewDecoder(r.Body).Decode(&data)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	message := entities.Message{
+		From: student.Id,
+		Message: data.Message,
+	}
+	var messageModel models.MessageModel
+	messageModel.Create(&message)
+
+	pusherClient := pusher.Client{
+		AppID:   "966947",
+		Key:     "8da04f0e1ecfefbeaecc",
+		Secret:  "7d92e3ac99cd7e9e6b3f",
+		Cluster: "eu",
+	}
+
+	err = pusherClient.Trigger("study-message", "messages", message)
+	if err != nil {
+		fmt.Print(err)
+		panic(err)
+	}
+
+	response, _ := json.Marshal(message)
+	w.Write(response)
+}
