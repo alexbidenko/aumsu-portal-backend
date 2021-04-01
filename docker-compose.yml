@@ -32,8 +32,8 @@ services:
     expose:
       - 8010
     volumes:
-      - "preview-images:/var/www/files-preview"
-      - "model-files:/var/www/files-model"
+      - "avatars:/var/www/avatars"
+      - "messages:/var/www/messages"
     networks:
       - app_network
 
@@ -51,8 +51,8 @@ services:
 
 volumes:
   postgres-data:
-  preview-images:
-  model-files:
+  messages:
+  avatars:
 
 networks:
   app_network:
