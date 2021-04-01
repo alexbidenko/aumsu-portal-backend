@@ -7,16 +7,14 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/pusher/pusher-http-go"
+	"io/ioutil"
 	"net/http"
+	"strings"
 )
 
 type Authorization struct {
 	Login    string
 	Password string
-}
-
-type CreatingMessage struct {
-	Message string
 }
 
 func InitStudents(r *mux.Router) {
@@ -98,16 +96,42 @@ func sendMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var data CreatingMessage
-	err = json.NewDecoder(r.Body).Decode(&data)
-	if err != nil {
+	title := r.FormValue("title")
+	description := r.FormValue("description")
+
+	if title == "" {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
+	r.ParseMultipartForm(10 << 21)
+	file, handler, err := r.FormFile("image")
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	defer file.Close()
+
+	tempFile, err := ioutil.TempFile("/var/www/images/messages", "image-*-" + handler.Filename)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer tempFile.Close()
+
+	fileBytes, err := ioutil.ReadAll(file)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	tempFile.Write(fileBytes)
+	fileName := strings.ReplaceAll(tempFile.Name(), "/var/www/images/messages/", "")
+
 	message := entities.Message{
 		From: student.Id,
-		Message: data.Message,
+		Title: title,
+		Description: description,
+		Image: fileName,
 	}
 	var messageModel models.MessageModel
 	messageModel.Create(&message)
