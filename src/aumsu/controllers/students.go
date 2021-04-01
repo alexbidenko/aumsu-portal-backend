@@ -104,28 +104,25 @@ func sendMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var fileName string
 	r.ParseMultipartForm(10 << 21)
 	file, handler, err := r.FormFile("image")
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-	defer file.Close()
+	if err == nil {
+		tempFile, err := ioutil.TempFile("/var/www/images/messages", "image-*-" + handler.Filename)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		defer tempFile.Close()
 
-	tempFile, err := ioutil.TempFile("/var/www/images/messages", "image-*-" + handler.Filename)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		fileBytes, err := ioutil.ReadAll(file)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		tempFile.Write(fileBytes)
+		fileName = strings.ReplaceAll(tempFile.Name(), "/var/www/images/messages/", "")
 	}
-	defer tempFile.Close()
-
-	fileBytes, err := ioutil.ReadAll(file)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	tempFile.Write(fileBytes)
-	fileName := strings.ReplaceAll(tempFile.Name(), "/var/www/images/messages/", "")
 
 	message := entities.Message{
 		From: student.Id,
