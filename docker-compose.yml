@@ -32,8 +32,7 @@ services:
     expose:
       - 8010
     volumes:
-      - "avatars:/var/www/avatars"
-      - "messages:/var/www/messages"
+      - "images:/var/www/images"
     networks:
       - app_network
 
@@ -51,8 +50,7 @@ services:
 
 volumes:
   postgres-data:
-  messages:
-  avatars:
+  images:
 
 networks:
   app_network:

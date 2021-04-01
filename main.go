@@ -24,7 +24,7 @@ func main() {
 
 	r := mux.NewRouter()
 
-	r.PathPrefix("/files/avatars/").Handler(http.StripPrefix("/files/avatars/", http.FileServer(http.Dir("/var/www/avatars"))))
+	r.PathPrefix("/files/avatars/").Handler(http.StripPrefix("/files/avatars/", http.FileServer(http.Dir("/var/www/images/avatars"))))
 	r.PathPrefix("/files/messages/images/").Handler(http.StripPrefix("/files/messages/images/", http.FileServer(http.Dir("/var/www/images/messages"))))
 
 	s := r.PathPrefix("/api").Subrouter()
