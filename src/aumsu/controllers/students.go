@@ -99,7 +99,7 @@ func sendMessage(w http.ResponseWriter, r *http.Request) {
 	title := r.FormValue("title")
 	description := r.FormValue("description")
 
-	if title == "" {
+	if title == "" || description == "" {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -124,6 +124,7 @@ func sendMessage(w http.ResponseWriter, r *http.Request) {
 		fileName = strings.ReplaceAll(tempFile.Name(), "/var/www/images/messages/", "")
 	}
 
+	fmt.Printf("test: " + title)
 	message := entities.Message{
 		From: student.Id,
 		Title: title,
