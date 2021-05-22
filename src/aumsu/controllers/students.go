@@ -5,6 +5,7 @@ import (
 	models "aumsu/modules"
 	"encoding/json"
 	"fmt"
+	"github.com/asaskevich/govalidator"
 	"github.com/gorilla/mux"
 	"github.com/pusher/pusher-http-go"
 	"io/ioutil"
@@ -19,6 +20,7 @@ type Authorization struct {
 
 func InitStudents(r *mux.Router) {
 	r.HandleFunc("/login", authorization).Methods("POST")
+	r.HandleFunc("/registration", registration).Methods("POST")
 	r.HandleFunc("/messages/last", getLastMessage).Methods("GET")
 	r.HandleFunc("/messages", sendMessage).Methods("POST")
 	r.HandleFunc("/messages", getMessages).Methods("GET")
@@ -38,6 +40,44 @@ func authorization(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
+
+	response, _ := json.Marshal(student)
+	w.Write(response)
+}
+
+func registration(w http.ResponseWriter, r *http.Request) {
+	var data entities.Student
+	err := json.NewDecoder(r.Body).Decode(&data)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	_, err = govalidator.ValidateStruct(data)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	var studentModule models.StudentModel
+
+	existed := studentModule.CheckUnique(&data)
+	if existed {
+		http.Error(w, "Entity is existed", http.StatusBadRequest)
+		return
+	}
+
+	student := entities.Student{
+		Login: data.Login,
+		Token: data.Login,
+		Password: data.Password,
+		FirstName: data.FirstName,
+		LastName: data.LastName,
+		Patronymic: data.Patronymic,
+		Status: "user",
+		Avatar: "",
+	}
+	studentModule.Create(&student)
 
 	response, _ := json.Marshal(student)
 	w.Write(response)

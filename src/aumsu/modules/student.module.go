@@ -22,6 +22,18 @@ func (studentModel StudentModel) Authorization(login string, password string) (e
 	return student, nil
 }
 
+func (studentModel StudentModel) Create(student *entities.Student) {
+	dif.DB.Model(&entities.Student{}).Create(student)
+}
+
+func (studentModel StudentModel) CheckUnique(student *entities.Student) bool {
+	err := dif.DB.Model(&entities.Student{}).Where(map[string]interface{}{
+		"login": student.Login,
+	}).Find(&student).Error
+
+	return err != nil
+}
+
 func (studentModel StudentModel) GetByToken(token string) (entities.Student, error) {
 	var student entities.Student
 	err := dif.DB.Model(&entities.Student{}).Where(map[string]interface{}{
