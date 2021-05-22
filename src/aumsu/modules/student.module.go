@@ -13,7 +13,7 @@ func (studentModel StudentModel) Authorization(login string, password string) (e
 	err := dif.DB.Model(&entities.Student{}).Where(map[string]interface{}{
 		"login": login,
 		"password": password,
-	}).Find(&student).Error
+	}).First(&student).Error
 
 	if err != nil {
 		return student, err
