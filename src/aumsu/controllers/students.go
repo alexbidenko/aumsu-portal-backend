@@ -24,6 +24,8 @@ func InitStudents(r *mux.Router) {
 	r.HandleFunc("/messages/last", getLastMessage).Methods("GET")
 	r.HandleFunc("/messages", sendMessage).Methods("POST")
 	r.HandleFunc("/messages", getMessages).Methods("GET")
+	r.HandleFunc("/messages/{id}", getMessageById).Methods("GET")
+	r.HandleFunc("/messages/{id}/comment", createComment).Methods("POST")
 }
 
 func authorization(w http.ResponseWriter, r *http.Request) {
@@ -188,5 +190,35 @@ func sendMessage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response, _ := json.Marshal(message)
+	w.Write(response)
+}
+
+func getMessageById(w http.ResponseWriter, r *http.Request) {
+	var id = mux.Vars(r)["id"]
+
+	var messageModule models.MessageModel
+	message, err := messageModule.GetById(id)
+
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	response, _ := json.Marshal(message)
+	w.Write(response)
+}
+
+func createComment(w http.ResponseWriter, r *http.Request) {
+	var comment entities.Comment
+	err := json.NewDecoder(r.Body).Decode(&comment)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	var commentModule models.CommentModule
+	commentModule.Create(&comment)
+
+	response, _ := json.Marshal(comment)
 	w.Write(response)
 }

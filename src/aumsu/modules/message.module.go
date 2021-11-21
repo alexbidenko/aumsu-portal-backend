@@ -28,3 +28,14 @@ func (messageModel MessageModel) All() []entities.Message {
 	dif.DB.Model(&entities.Message{}).Limit(40).Find(&messages)
 	return messages
 }
+
+func (messageModel MessageModel) GetById(id string) (entities.Message, error) {
+	var message entities.Message
+	err := dif.DB.Model(&entities.Message{}).Preload("Comments").First(&message, id).Error
+
+	if err != nil {
+		return message, err
+	}
+
+	return message, nil
+}
