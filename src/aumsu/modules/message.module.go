@@ -31,7 +31,7 @@ func (messageModel MessageModel) All() []entities.Message {
 
 func (messageModel MessageModel) GetById(id string) (entities.Message, error) {
 	var message entities.Message
-	err := dif.DB.Model(&entities.Message{}).Preload("Comments").First(&message, id).Error
+	err := dif.DB.Model(&entities.Message{}).Preload("Comments").Preload("Comments.User").First(&message, id).Error
 
 	if err != nil {
 		return message, err
