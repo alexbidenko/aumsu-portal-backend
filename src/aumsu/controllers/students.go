@@ -25,7 +25,7 @@ func InitStudents(r *mux.Router) {
 	r.HandleFunc("/messages", sendMessage).Methods("POST")
 	r.HandleFunc("/messages", getMessages).Methods("GET")
 	r.HandleFunc("/messages/{id}", getMessageById).Methods("GET")
-	r.HandleFunc("/messages/{id}/comment", createComment).Methods("POST")
+	r.HandleFunc("/messages/comment", createComment).Methods("POST")
 }
 
 func authorization(w http.ResponseWriter, r *http.Request) {
