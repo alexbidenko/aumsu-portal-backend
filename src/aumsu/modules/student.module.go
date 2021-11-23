@@ -47,6 +47,6 @@ func (studentModel StudentModel) GetByToken(token string) (entities.Student, err
 	return student, nil
 }
 
-func (studentModel StudentModel) Update(id string, student *entities.Student) {
+func (studentModel StudentModel) Update(id int, student *entities.Student) {
 	dif.DB.Model(&entities.Student{}).Where("id = ?", id).Updates(student)
 }

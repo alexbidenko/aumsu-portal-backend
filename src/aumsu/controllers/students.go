@@ -238,7 +238,7 @@ func updateStudent(w http.ResponseWriter, r *http.Request) {
 	updatedStudent.FirstName = student.FirstName
 	updatedStudent.LastName = student.LastName
 	updatedStudent.Patronymic = student.Patronymic
-	studentModule.Update(mux.Vars(r)["id"], &updatedStudent)
+	studentModule.Update(updatedStudent.Id, &updatedStudent)
 
 	response, _ := json.Marshal(updatedStudent)
 	w.Write(response)
@@ -270,7 +270,7 @@ func updateAvatar(w http.ResponseWriter, r *http.Request) {
 	var studentModule models.StudentModel
 	updatedStudent, _ := studentModule.GetByToken(r.Header.Get("Authorization"))
 	updatedStudent.Avatar = fileName
-	studentModule.Update(mux.Vars(r)["id"], &updatedStudent)
+	studentModule.Update(updatedStudent.Id, &updatedStudent)
 
 	response, _ := json.Marshal(updatedStudent)
 	w.Write(response)
