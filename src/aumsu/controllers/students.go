@@ -26,6 +26,8 @@ func InitStudents(r *mux.Router) {
 	r.HandleFunc("/messages", getMessages).Methods("GET")
 	r.HandleFunc("/messages/{id}", getMessageById).Methods("GET")
 	r.HandleFunc("/messages/comment", createComment).Methods("POST")
+	r.HandleFunc("/user", updateStudent).Methods("PUT")
+	r.HandleFunc("/user/avatar", updateAvatar).Methods("PUT")
 }
 
 func authorization(w http.ResponseWriter, r *http.Request) {
@@ -220,5 +222,63 @@ func createComment(w http.ResponseWriter, r *http.Request) {
 	commentModule.Create(&comment)
 
 	response, _ := json.Marshal(comment)
+	w.Write(response)
+}
+
+func updateStudent(w http.ResponseWriter, r *http.Request) {
+	var student entities.Student
+	err := json.NewDecoder(r.Body).Decode(&student)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	var studentModule models.StudentModel
+	updatedStudent, _ := studentModule.GetByToken(r.Header.Get("Authorization"))
+	updatedStudent.FirstName = student.FirstName
+	updatedStudent.LastName = student.LastName
+	updatedStudent.Patronymic = student.Patronymic
+	studentModule.Update(mux.Vars(r)["id"], &student)
+
+	response, _ := json.Marshal(student)
+	w.Write(response)
+}
+
+func updateAvatar(w http.ResponseWriter, r *http.Request) {
+	var student entities.Student
+	err := json.NewDecoder(r.Body).Decode(&student)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	var fileName string
+	r.ParseMultipartForm(10 << 21)
+	file, handler, err := r.FormFile("avatar")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	tempFile, err := ioutil.TempFile("/var/www/images/avatars", "avatar-*-" + handler.Filename)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer tempFile.Close()
+
+	fileBytes, err := ioutil.ReadAll(file)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	tempFile.Write(fileBytes)
+	fileName = strings.ReplaceAll(tempFile.Name(), "/var/www/images/avatars/", "")
+
+	var studentModule models.StudentModel
+	updatedStudent, _ := studentModule.GetByToken(r.Header.Get("Authorization"))
+	updatedStudent.Avatar = fileName
+	studentModule.Update(mux.Vars(r)["id"], &student)
+
+	response, _ := json.Marshal(student)
 	w.Write(response)
 }

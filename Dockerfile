@@ -18,5 +18,6 @@ RUN apk --no-cache add ca-certificates
 WORKDIR /usr/bin
 COPY --from=build /go/src/aumsu-portal-backend/main .
 RUN mkdir -p /var/www/images/messages
+RUN mkdir -p /var/www/images/avatars
 EXPOSE 8010
 ENTRYPOINT  ["./main"]
