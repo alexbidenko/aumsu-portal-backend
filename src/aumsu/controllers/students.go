@@ -238,20 +238,13 @@ func updateStudent(w http.ResponseWriter, r *http.Request) {
 	updatedStudent.FirstName = student.FirstName
 	updatedStudent.LastName = student.LastName
 	updatedStudent.Patronymic = student.Patronymic
-	studentModule.Update(mux.Vars(r)["id"], &student)
+	studentModule.Update(mux.Vars(r)["id"], &updatedStudent)
 
-	response, _ := json.Marshal(student)
+	response, _ := json.Marshal(updatedStudent)
 	w.Write(response)
 }
 
 func updateAvatar(w http.ResponseWriter, r *http.Request) {
-	var student entities.Student
-	err := json.NewDecoder(r.Body).Decode(&student)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
 	var fileName string
 	r.ParseMultipartForm(10 << 21)
 	file, handler, err := r.FormFile("avatar")
@@ -277,8 +270,8 @@ func updateAvatar(w http.ResponseWriter, r *http.Request) {
 	var studentModule models.StudentModel
 	updatedStudent, _ := studentModule.GetByToken(r.Header.Get("Authorization"))
 	updatedStudent.Avatar = fileName
-	studentModule.Update(mux.Vars(r)["id"], &student)
+	studentModule.Update(mux.Vars(r)["id"], &updatedStudent)
 
-	response, _ := json.Marshal(student)
+	response, _ := json.Marshal(updatedStudent)
 	w.Write(response)
 }
