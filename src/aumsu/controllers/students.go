@@ -149,7 +149,7 @@ func sendMessage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var fileName string
-	r.ParseMultipartForm(10 << 21)
+	r.ParseMultipartForm(10 << 23)
 	file, handler, err := r.FormFile("image")
 	if err == nil {
 		tempFile, err := ioutil.TempFile("/var/www/images/messages", "image-*-" + handler.Filename)
@@ -245,13 +245,14 @@ func updateStudent(w http.ResponseWriter, r *http.Request) {
 }
 
 func updateAvatar(w http.ResponseWriter, r *http.Request) {
-	var fileName string
-	r.ParseMultipartForm(10 << 21)
+	r.ParseMultipartForm(10 << 23)
 	file, handler, err := r.FormFile("avatar")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
+	var fileName string
 	tempFile, err := ioutil.TempFile("/var/www/images/avatars", "avatar-*-" + handler.Filename)
 	if err != nil {
 		http.Error(w, "Create temporary file: " + err.Error(), http.StatusInternalServerError)
