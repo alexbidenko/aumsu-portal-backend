@@ -254,14 +254,14 @@ func updateAvatar(w http.ResponseWriter, r *http.Request) {
 	}
 	tempFile, err := ioutil.TempFile("/var/www/images/avatars", "avatar-*-" + handler.Filename)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Create temporary file: " + err.Error(), http.StatusInternalServerError)
 		return
 	}
 	defer tempFile.Close()
 
 	fileBytes, err := ioutil.ReadAll(file)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Read file: " + err.Error(), http.StatusInternalServerError)
 		return
 	}
 	tempFile.Write(fileBytes)
