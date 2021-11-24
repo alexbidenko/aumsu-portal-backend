@@ -9,6 +9,7 @@ import (
 	"github.com/gorilla/mux"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strings"
 )
@@ -129,6 +130,11 @@ func updateAvatar(w http.ResponseWriter, r *http.Request) {
 
 	var studentModule models.StudentModel
 	updatedStudent, _ := studentModule.GetByToken(r.Header.Get("Authorization"))
+
+	if updatedStudent.Avatar != "" {
+		os.Remove("/var/www/images/avatars/" + updatedStudent.Avatar)
+	}
+
 	updatedStudent.Avatar = fileName
 	studentModule.Update(updatedStudent.Id, &updatedStudent)
 
