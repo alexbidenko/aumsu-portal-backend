@@ -20,6 +20,8 @@ func InitMessages(r *mux.Router) {
 	r.HandleFunc("/messages", getMessages).Methods("GET")
 	r.HandleFunc("/messages/{id}", getMessageById).Methods("GET")
 	r.HandleFunc("/messages/comment", createComment).Methods("POST")
+	r.HandleFunc("/messages/comment/{id}", deleteComment).Methods("DELETE")
+	r.HandleFunc("/messages/comment/{id}", updateComment).Methods("PUT")
 }
 
 func getMessages(w http.ResponseWriter, r *http.Request) {
@@ -158,4 +160,21 @@ func createComment(w http.ResponseWriter, r *http.Request) {
 	commentModule.Create(&comment)
 
 	utils.WriteJsonResponse(w, comment)
+}
+
+func deleteComment(w http.ResponseWriter, r *http.Request) {
+	var commentModule models.CommentModule
+	commentModule.Delete(mux.Vars(r)["id"])
+
+	utils.WriteJsonResponse(w, true)
+}
+
+func updateComment(w http.ResponseWriter, r *http.Request) {
+	var data entities.Comment
+	utils.ParseRequestBody(w, r, &data)
+
+	var commentModule models.CommentModule
+	commentModule.Update(mux.Vars(r)["id"], &data)
+
+	utils.WriteJsonResponse(w, data)
 }
