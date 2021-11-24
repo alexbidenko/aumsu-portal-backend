@@ -1,8 +1,8 @@
 package models
 
 import (
-	"aumsu/dif"
-	"aumsu/entities"
+	"aumsu.portal.backend/dif"
+	"aumsu.portal.backend/entities"
 )
 
 type CommentModule struct {

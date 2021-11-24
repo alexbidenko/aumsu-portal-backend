@@ -1,18 +1,14 @@
 package main
 
 import (
-	"aumsu/controllers"
-	"aumsu/dif"
+	"aumsu.portal.backend/controllers"
+	"aumsu.portal.backend/dif"
 	_ "database/sql"
 	"fmt"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 )
-
-func handler(w http.ResponseWriter, _ *http.Request) {
-	fmt.Fprint(w, "Hello AUMSU!")
-}
 
 func main() {
 	err := dif.DBError
@@ -29,7 +25,7 @@ func main() {
 
 	s := r.PathPrefix("/api").Subrouter()
 	controllers.InitStudents(s)
-	r.HandleFunc("/api", handler)
+	controllers.InitMessages(s)
 
 	fmt.Printf("Server starting")
 	log.Fatal(http.ListenAndServe(":8010", r))

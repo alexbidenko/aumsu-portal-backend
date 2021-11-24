@@ -18,8 +18,8 @@ services:
   adminer:
     restart: unless-stopped
     image: adminer
-    ports:
-      - 7543:8080
+    expose:
+      - 8080
     networks:
       - app_network
 

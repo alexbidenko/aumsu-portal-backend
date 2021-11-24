@@ -1,22 +1,16 @@
-FROM golang:1.15-alpine AS build
+FROM golang:1.17-alpine AS build
 # Support CGO and SSL
 RUN apk --no-cache add gcc g++ make
 RUN apk add git
-WORKDIR /go/src/aumsu-portal-backend
+WORKDIR /go/src/application
 COPY . .
-ENV GOPATH="/go/src/aumsu-portal-backend"
-RUN go get github.com/gorilla/mux
-RUN go get github.com/gorilla/handlers
-RUN go get github.com/asaskevich/govalidator
-RUN go get gorm.io/gorm
-RUN go get gorm.io/driver/postgres
-RUN go get github.com/pusher/pusher-http-go
+ENV GOPATH="/go/src"
 RUN GOOS=linux go build -ldflags="-s -w" -o main .
 
-FROM alpine:3.10
+FROM alpine
 RUN apk --no-cache add ca-certificates
 WORKDIR /usr/bin
-COPY --from=build /go/src/aumsu-portal-backend/main .
+COPY --from=build /go/src/application/main .
 RUN mkdir -p /var/www/images/messages
 RUN mkdir -p /var/www/images/avatars
 EXPOSE 8010
