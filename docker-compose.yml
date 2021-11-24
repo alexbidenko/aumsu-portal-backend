@@ -17,6 +17,7 @@ services:
 
   adminer:
     restart: unless-stopped
+    container_name: aumsu_backend_adminer
     image: adminer
     expose:
       - 8080
