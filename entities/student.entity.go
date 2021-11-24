@@ -1,6 +1,9 @@
 package entities
 
+import "gorm.io/gorm"
+
 type Student struct {
+	gorm.Model
 	Id int `json:"id"`
 	Login string `json:"login" valid:"required,type(string),length(5|255)" gorm:"size:255"`
 	Password string `json:"password" valid:"required,type(string),length(8|255)" gorm:"size:255"`

@@ -1,6 +1,9 @@
 package entities
 
+import "gorm.io/gorm"
+
 type Message struct {
+	gorm.Model
 	Id int `json:"id" gorm:"primary_key"`
 	Title string `json:"title" valid:"required,type(string)" gorm:"size:255"`
 	Description string `json:"description" valid:"required,type(string)"`
