@@ -26,23 +26,13 @@ services:
   go_application:
     restart: unless-stopped
     build: "."
+    container_name: aumsu_backend
     depends_on:
       - aumsu_postgres
     expose:
       - 8010
     volumes:
       - "images:/var/www/images"
-    networks:
-      - app_network
-
-  nginx:
-    restart: unless-stopped
-    build: "./.nginx"
-    container_name: aumsu_backend
-    depends_on:
-      - "go_application"
-    expose:
-      - 80
     networks:
       - app_network
       - server
