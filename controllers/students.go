@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"github.com/asaskevich/govalidator"
 	"github.com/gorilla/mux"
+	"golang.org/x/crypto/bcrypt"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -35,7 +36,13 @@ func authorization(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var studentModule models.StudentModel
-	student, err := studentModule.Authorization(data.Login, data.Password)
+	student, err := studentModule.Authorization(data.Login)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(student.Password), []byte(data.Password))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
@@ -66,10 +73,15 @@ func registration(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	bytes, err := bcrypt.GenerateFromPassword([]byte(data.Password), 14)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	student := entities.Student{
 		Login: data.Login,
 		Token: data.Login,
-		Password: data.Password,
+		Password: string(bytes),
 		FirstName: data.FirstName,
 		LastName: data.LastName,
 		Patronymic: data.Patronymic,

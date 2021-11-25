@@ -8,11 +8,10 @@ import (
 type StudentModel struct {
 }
 
-func (studentModel StudentModel) Authorization(login string, password string) (entities.Student, error) {
+func (studentModel StudentModel) Authorization(login string) (entities.Student, error) {
 	var student entities.Student
 	err := dif.DB.Model(&entities.Student{}).Where(map[string]interface{}{
 		"login": login,
-		"password": password,
 	}).First(&student).Error
 
 	if err != nil {

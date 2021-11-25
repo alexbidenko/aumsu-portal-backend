@@ -15,15 +15,6 @@ services:
     networks:
       - app_network
 
-  adminer:
-    restart: unless-stopped
-    container_name: aumsu_backend_adminer
-    image: adminer
-    expose:
-      - 8080
-    networks:
-      - app_network
-
   go_application:
     restart: unless-stopped
     build: "."
