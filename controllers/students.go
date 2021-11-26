@@ -9,9 +9,11 @@ import (
 	"github.com/gorilla/mux"
 	"golang.org/x/crypto/bcrypt"
 	"io/ioutil"
+	"math/rand"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 )
 
@@ -20,11 +22,31 @@ type Authorization struct {
 	Password string
 }
 
+var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
+func generateString(n int) string {
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letterRunes[rand.Intn(len(letterRunes))]
+	}
+	return string(b)
+}
+
 func InitStudents(r *mux.Router) {
+	r.HandleFunc("/version/{number}", getVersion).Methods("GET")
 	r.HandleFunc("/login", authorization).Methods("POST")
 	r.HandleFunc("/registration", registration).Methods("POST")
 	r.HandleFunc("/user", updateStudent).Methods("PUT")
 	r.HandleFunc("/user/avatar", updateAvatar).Methods("PUT")
+}
+
+func getVersion(w http.ResponseWriter, r *http.Request) {
+	x, err := strconv.ParseInt(mux.Vars(r)["number"], 10, 64)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	utils.WriteJsonResponse(w, x >= 16)
 }
 
 func authorization(w http.ResponseWriter, r *http.Request) {
@@ -88,7 +110,7 @@ func registration(w http.ResponseWriter, r *http.Request) {
 	}
 	student := entities.Student{
 		Login: data.Login,
-		Token: data.Login,
+		Token: generateString(40),
 		Password: string(bytes),
 		FirstName: data.FirstName,
 		LastName: data.LastName,

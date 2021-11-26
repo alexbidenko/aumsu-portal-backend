@@ -1,6 +1,9 @@
 package entities
 
-import "gorm.io/gorm"
+import (
+	"github.com/dgrijalva/jwt-go"
+	"gorm.io/gorm"
+)
 
 type Student struct {
 	gorm.Model
@@ -15,6 +18,26 @@ type Student struct {
 	Patronymic string `json:"patronymic" valid:"type(string),length(2|255),optional" gorm:"size:255"`
 }
 
-func (faculty *Student) TableName() string {
+func (student *Student) TableName() string {
 	return "students"
+}
+
+type UserClaims struct {
+	Authorized bool
+	Student
+	jwt.StandardClaims
+}
+
+func (student *Student) GenerateJWT() error {
+	var signingKey = []byte("aumsu-portal-backend")
+	claims := UserClaims{
+		Authorized: true,
+		Student: *student,
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	tokenString, err := token.SignedString(signingKey)
+	student.Token = tokenString
+
+	return err
 }
