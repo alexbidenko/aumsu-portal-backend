@@ -38,6 +38,7 @@ func InitStudents(r *mux.Router) {
 	r.HandleFunc("/registration", registration).Methods("POST")
 	r.HandleFunc("/user", updateStudent).Methods("PUT")
 	r.HandleFunc("/user/avatar", updateAvatar).Methods("PUT")
+	r.HandleFunc("/user/password", updatePassword).Methods("PUT")
 }
 
 func getVersion(w http.ResponseWriter, r *http.Request) {
@@ -133,9 +134,39 @@ func updateStudent(w http.ResponseWriter, r *http.Request) {
 
 	var studentModule models.StudentModel
 	updatedStudent, _ := studentModule.GetByToken(r.Header.Get("Authorization"))
+	updatedStudent.Login = student.Login
 	updatedStudent.FirstName = student.FirstName
 	updatedStudent.LastName = student.LastName
 	updatedStudent.Patronymic = student.Patronymic
+	studentModule.Update(updatedStudent.Id, &updatedStudent)
+
+	utils.WriteJsonResponse(w, updatedStudent)
+}
+
+func updatePassword(w http.ResponseWriter, r *http.Request) {
+	var password = r.FormValue("password")
+	var newPassword = r.FormValue("new_password")
+
+	if len(newPassword) < 8 {
+		http.Error(w, "Password is short", http.StatusBadRequest)
+		return
+	}
+
+	var studentModule models.StudentModel
+	updatedStudent, _ := studentModule.GetByToken(r.Header.Get("Authorization"))
+
+	err := bcrypt.CompareHashAndPassword([]byte(updatedStudent.Password), []byte(password))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	bytes, err := bcrypt.GenerateFromPassword([]byte(newPassword), 14)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	updatedStudent.Password = string(bytes)
 	studentModule.Update(updatedStudent.Id, &updatedStudent)
 
 	utils.WriteJsonResponse(w, updatedStudent)
