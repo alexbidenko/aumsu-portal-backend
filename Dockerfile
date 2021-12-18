@@ -10,6 +10,7 @@ RUN GOOS=linux go build -ldflags="-s -w" -o main .
 FROM alpine
 RUN apk --no-cache add ca-certificates
 WORKDIR /usr/bin
+COPY --from=build /go/src/application/aumsu-portal-firebase-adminsdk-5sajn-ec89781456.json .
 COPY --from=build /go/src/application/main .
 RUN mkdir -p /var/www/images/messages
 RUN mkdir -p /var/www/images/avatars
