@@ -4,13 +4,16 @@ import (
 	"aumsu.portal.backend/entities"
 	models "aumsu.portal.backend/modules"
 	"aumsu.portal.backend/utils"
+	"context"
 	"encoding/json"
-	"fmt"
+	firebase "firebase.google.com/go/v4"
+	"firebase.google.com/go/v4/messaging"
 	"github.com/gorilla/mux"
-	"github.com/pusher/pusher-http-go"
+	"google.golang.org/api/option"
 	"io/ioutil"
 	"net/http"
 	"path/filepath"
+	"strconv"
 	"strings"
 )
 
@@ -79,7 +82,7 @@ func sendMessage(w http.ResponseWriter, r *http.Request) {
 	description := r.FormValue("description")
 
 	if title == "" || description == "" {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, "Title and description are required", http.StatusBadRequest)
 		return
 	}
 
@@ -92,7 +95,7 @@ func sendMessage(w http.ResponseWriter, r *http.Request) {
 
 	file, handler, err := r.FormFile("image")
 	if err == nil {
-		tempFile, err := ioutil.TempFile("/var/www/images/messages", "image-*-" + filepath.Ext(handler.Filename))
+		tempFile, err := ioutil.TempFile("/var/www/images/messages", "image-*-"+filepath.Ext(handler.Filename))
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -108,27 +111,41 @@ func sendMessage(w http.ResponseWriter, r *http.Request) {
 		fileName = strings.ReplaceAll(tempFile.Name(), "/var/www/images/messages/", "")
 	}
 
-	fmt.Printf("test: " + title)
 	message := entities.Message{
-		From: student.Id,
-		Title: title,
+		From:        student.Id,
+		Title:       title,
 		Description: description,
-		Image: fileName,
+		Image:       fileName,
 	}
 	var messageModel models.MessageModel
 	messageModel.Create(&message)
 
-	pusherClient := pusher.Client{
-		AppID:   "966947",
-		Key:     "8da04f0e1ecfefbeaecc",
-		Secret:  "7d92e3ac99cd7e9e6b3f",
-		Cluster: "eu",
+	notificationMessage := &messaging.Message{
+		Data: map[string]string{
+			"sender_id": strconv.Itoa(message.From),
+		},
+		Notification: &messaging.Notification{
+			Title: message.Title,
+			Body:  message.Description,
+		},
+		Topic: "messages",
 	}
 
-	err = pusherClient.Trigger("study-message", "messages", message)
+	opt := option.WithCredentialsFile("aumsu-portal-firebase-adminsdk-5sajn-ec89781456.json")
+	app, err := firebase.NewApp(context.Background(), nil, opt)
 	if err != nil {
-		fmt.Print(err)
-		panic(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	client, err := app.Messaging(context.Background())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	_, err = client.Send(context.Background(), notificationMessage)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	utils.WriteJsonResponse(w, message)

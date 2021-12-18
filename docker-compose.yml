@@ -25,6 +25,8 @@ services:
       - 8010
     volumes:
       - "images:/var/www/images"
+    environment:
+      MODE: production
     networks:
       - app_network
       - server
