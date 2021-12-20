@@ -5,5 +5,5 @@ import (
 )
 
 func Migrate() {
-	DB.AutoMigrate(&entities.Student{}, &entities.Message{}, &entities.Comment{})
+	DB.AutoMigrate(&entities.Student{}, &entities.Message{}, &entities.Comment{}, &entities.StudyGroup{}, &entities.StudyGroupSchedule{})
 }

@@ -28,5 +28,5 @@ func main() {
 	controllers.InitMessages(s)
 
 	fmt.Printf("Server starting")
-	log.Fatal(http.ListenAndServe(":8010", r))
+	log.Fatal(http.ListenAndServe("0.0.0.0:8010", r))
 }

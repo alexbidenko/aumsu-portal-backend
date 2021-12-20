@@ -5,6 +5,7 @@ import (
 	models "aumsu.portal.backend/modules"
 	"aumsu.portal.backend/utils"
 	"encoding/json"
+	"fmt"
 	"github.com/asaskevich/govalidator"
 	"github.com/gorilla/mux"
 	"golang.org/x/crypto/bcrypt"
@@ -36,9 +37,12 @@ func InitStudents(r *mux.Router) {
 	r.HandleFunc("/version/{number}", getVersion).Methods("GET")
 	r.HandleFunc("/login", authorization).Methods("POST")
 	r.HandleFunc("/registration", registration).Methods("POST")
+	r.HandleFunc("/user", getStudent).Methods("GET")
+	r.HandleFunc("/schedule/{id}", getSchedule).Methods("GET")
 	r.HandleFunc("/user", updateStudent).Methods("PUT")
 	r.HandleFunc("/user/avatar", updateAvatar).Methods("PUT")
 	r.HandleFunc("/user/password", updatePassword).Methods("PUT")
+	r.HandleFunc("/study-groups", getStudyGroups).Methods("GET")
 }
 
 func getVersion(w http.ResponseWriter, r *http.Request) {
@@ -47,7 +51,7 @@ func getVersion(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	utils.WriteJsonResponse(w, x >= 16)
+	utils.WriteJsonResponse(w, x >= 18)
 }
 
 func authorization(w http.ResponseWriter, r *http.Request) {
@@ -82,6 +86,30 @@ func authorization(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJsonResponse(w, student)
 }
 
+func getStudent(w http.ResponseWriter, r *http.Request) {
+	var studentModule models.StudentModel
+	updatedStudent, err := studentModule.GetByToken(r.Header.Get("Authorization"))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	utils.WriteJsonResponse(w, updatedStudent)
+}
+
+func getSchedule(w http.ResponseWriter, r *http.Request) {
+	id := mux.Vars(r)["id"]
+
+	var studyGroupModel models.StudyGroupModel
+	schedule, err := studyGroupModel.GetSchedule(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	utils.WriteJsonResponse(w, schedule)
+}
+
 func registration(w http.ResponseWriter, r *http.Request) {
 	var data entities.Student
 	err := json.NewDecoder(r.Body).Decode(&data)
@@ -110,14 +138,14 @@ func registration(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	student := entities.Student{
-		Login: data.Login,
-		Token: generateString(40),
-		Password: string(bytes),
-		FirstName: data.FirstName,
-		LastName: data.LastName,
+		Login:      data.Login,
+		Token:      generateString(40),
+		Password:   string(bytes),
+		FirstName:  data.FirstName,
+		LastName:   data.LastName,
 		Patronymic: data.Patronymic,
-		Status: "user",
-		Avatar: "",
+		Status:     "user",
+		Avatar:     "",
 	}
 	studentModule.Create(&student)
 
@@ -132,12 +160,14 @@ func updateStudent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	fmt.Println(student.StudyGroupId)
 	var studentModule models.StudentModel
 	updatedStudent, _ := studentModule.GetByToken(r.Header.Get("Authorization"))
 	updatedStudent.Login = student.Login
 	updatedStudent.FirstName = student.FirstName
 	updatedStudent.LastName = student.LastName
 	updatedStudent.Patronymic = student.Patronymic
+	updatedStudent.StudyGroupId = student.StudyGroupId
 	studentModule.Update(updatedStudent.Id, &updatedStudent)
 
 	utils.WriteJsonResponse(w, updatedStudent)
@@ -186,16 +216,16 @@ func updateAvatar(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var fileName string
-	tempFile, err := ioutil.TempFile("/var/www/images/avatars", "avatar-*" + filepath.Ext(handler.Filename))
+	tempFile, err := ioutil.TempFile("/var/www/images/avatars", "avatar-*"+filepath.Ext(handler.Filename))
 	if err != nil {
-		http.Error(w, "Create temporary file: " + err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Create temporary file: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 	defer tempFile.Close()
 
 	fileBytes, err := ioutil.ReadAll(file)
 	if err != nil {
-		http.Error(w, "Read file: " + err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Read file: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 	tempFile.Write(fileBytes)
@@ -212,4 +242,11 @@ func updateAvatar(w http.ResponseWriter, r *http.Request) {
 	studentModule.Update(updatedStudent.Id, &updatedStudent)
 
 	utils.WriteJsonResponse(w, updatedStudent)
+}
+
+func getStudyGroups(w http.ResponseWriter, _ *http.Request) {
+	var studyGroupModule models.StudyGroupModel
+	studyGroups := studyGroupModule.All()
+
+	utils.WriteJsonResponse(w, studyGroups)
 }

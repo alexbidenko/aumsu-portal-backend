@@ -12,7 +12,7 @@ func (studentModel StudentModel) Authorization(login string) (entities.Student, 
 	var student entities.Student
 	err := dif.DB.Model(&entities.Student{}).Where(map[string]interface{}{
 		"login": login,
-	}).First(&student).Error
+	}).Preload("StudyGroup").First(&student).Error
 
 	if err != nil {
 		return student, err
@@ -37,7 +37,7 @@ func (studentModel StudentModel) GetByToken(token string) (entities.Student, err
 	var student entities.Student
 	err := dif.DB.Model(&entities.Student{}).Where(map[string]interface{}{
 		"token": token,
-	}).Find(&student).Error
+	}).Preload("StudyGroup").Find(&student).Error
 
 	if err != nil {
 		return student, err
@@ -47,5 +47,15 @@ func (studentModel StudentModel) GetByToken(token string) (entities.Student, err
 }
 
 func (studentModel StudentModel) Update(id int, student *entities.Student) {
-	dif.DB.Model(&entities.Student{}).Where("id = ?", id).Updates(student)
+	var studyGroupId *uint
+	if student.StudyGroupId != 0 {
+		studyGroupId = &student.StudyGroupId
+	}
+	dif.DB.Model(&entities.Student{}).
+		Where("id = ?", id).
+		Updates(student).
+		Update("study_group_id", studyGroupId).
+		Where("id", id).
+		Preload("StudyGroup").
+		First(student)
 }
