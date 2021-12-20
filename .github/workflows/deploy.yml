@@ -33,3 +33,4 @@ jobs:
         run: docker-compose up -d --build
         env:
           DOCKER_HOST: ssh://${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}
+          FIREBASE_ADMINSDK: ${{ secrets.FIREBASE_ADMINSDK }}

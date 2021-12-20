@@ -17,7 +17,10 @@ services:
 
   go_application:
     restart: unless-stopped
-    build: "."
+    build:
+      context: .
+      args:
+        FIREBASE_ADMINSDK: ${FIREBASE_ADMINSDK}
     container_name: aumsu_backend
     depends_on:
       - aumsu_postgres

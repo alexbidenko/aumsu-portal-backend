@@ -3,3 +3,4 @@ pkg
 src/*
 !src/aumsu
 files
+aumsu-portal-firebase-adminsdk-*.json

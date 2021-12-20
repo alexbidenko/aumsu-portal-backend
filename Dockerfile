@@ -1,4 +1,7 @@
 FROM golang:1.17-alpine AS build
+
+ARG FIREBASE_ADMINSDK
+
 # Support CGO and SSL
 RUN apk --no-cache add gcc g++ make
 RUN apk add git
@@ -12,6 +15,8 @@ RUN apk --no-cache add ca-certificates
 WORKDIR /usr/bin
 COPY --from=build /go/src/application/aumsu-portal-firebase-adminsdk-5sajn-ec89781456.json .
 COPY --from=build /go/src/application/main .
+
+RUN echo $FIREBASE_ADMINSDK > aumsu-portal-firebase-adminsdk-5sajn-e6d3adfd5a.json
 RUN mkdir -p /var/www/images/messages
 RUN mkdir -p /var/www/images/avatars
 EXPOSE 8010

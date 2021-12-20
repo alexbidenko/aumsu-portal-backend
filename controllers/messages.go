@@ -131,7 +131,7 @@ func sendMessage(w http.ResponseWriter, r *http.Request) {
 		Topic: "messages",
 	}
 
-	opt := option.WithCredentialsFile("aumsu-portal-firebase-adminsdk-5sajn-ec89781456.json")
+	opt := option.WithCredentialsFile("aumsu-portal-firebase-adminsdk-5sajn-e6d3adfd5a.json")
 	app, err := firebase.NewApp(context.Background(), nil, opt)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
