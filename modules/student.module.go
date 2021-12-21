@@ -21,8 +21,8 @@ func (studentModel StudentModel) Authorization(login string) (entities.Student, 
 	return student, nil
 }
 
-func (studentModel StudentModel) Create(student *entities.Student) {
-	dif.DB.Model(&entities.Student{}).Create(student)
+func (studentModel StudentModel) Create(student *entities.Student) error {
+	return dif.DB.Model(&entities.Student{}).Create(student).Error
 }
 
 func (studentModel StudentModel) CheckUnique(student *entities.Student) bool {
@@ -47,14 +47,9 @@ func (studentModel StudentModel) GetByToken(token string) (entities.Student, err
 }
 
 func (studentModel StudentModel) Update(id uint, student *entities.Student) {
-	var studyGroupId *uint
-	if student.StudyGroupId != 0 {
-		studyGroupId = &student.StudyGroupId
-	}
 	dif.DB.Model(&entities.Student{}).
 		Where("id = ?", id).
-		Updates(student).
-		Update("study_group_id", studyGroupId)
+		Updates(student)
 	dif.DB.Model(&entities.Student{}).
 		Where("id = ?", id).
 		Preload("StudyGroup").

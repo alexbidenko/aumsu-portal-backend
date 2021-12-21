@@ -150,7 +150,11 @@ func registration(w http.ResponseWriter, r *http.Request) {
 		Status:     "user",
 		Avatar:     "",
 	}
-	studentModule.Create(&student)
+	err = studentModule.Create(&student)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	utils.WriteJsonResponse(w, student)
 }
