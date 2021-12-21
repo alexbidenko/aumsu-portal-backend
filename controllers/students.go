@@ -76,6 +76,7 @@ func authorization(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	} else {
+		fmt.Println(student.Password, "; ", data.Password, "; ", data.Login, "; ", student, "; ", data)
 		err = bcrypt.CompareHashAndPassword([]byte(student.Password), []byte(data.Password))
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusUnauthorized)
