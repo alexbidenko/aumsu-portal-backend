@@ -23,10 +23,10 @@ func (studentModel StudentModel) Create(student *entities.Student) error {
 	return dif.DB.Model(&entities.Student{}).Create(student).Error
 }
 
-func (studentModel StudentModel) CheckUnique(student *entities.Student) bool {
-	err := dif.DB.Model(&entities.Student{}).Where("login = ?", student.Login).Find(&student).Error
-
-	return err != nil
+func (studentModel StudentModel) CheckExisted(student *entities.Student) bool {
+	var result int64
+	dif.DB.Model(&entities.Student{}).Where("login = ?", student.Login).Count(&result)
+	return result > 0
 }
 
 func (studentModel StudentModel) GetByToken(token string) (entities.Student, error) {

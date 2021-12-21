@@ -8,6 +8,8 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gorilla/mux v1.8.0
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
+	google.golang.org/api v0.40.0
+	gopkg.in/guregu/null.v4 v4.0.0
 	gorm.io/driver/postgres v1.2.2
 	gorm.io/gorm v1.22.3
 )
@@ -40,7 +42,6 @@ require (
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/tools v0.1.0 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
-	google.golang.org/api v0.40.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20210222152913-aa3ee6e6a81c // indirect
 	google.golang.org/grpc v1.35.0 // indirect
