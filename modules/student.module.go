@@ -54,8 +54,9 @@ func (studentModel StudentModel) Update(id int, student *entities.Student) {
 	dif.DB.Model(&entities.Student{}).
 		Where("id = ?", id).
 		Updates(student).
-		Update("study_group_id", studyGroupId).
-		Where("id", id).
+		Update("study_group_id", studyGroupId)
+	dif.DB.Model(&entities.Student{}).
+		Where("id = ?", id).
 		Preload("StudyGroup").
 		First(student)
 }
