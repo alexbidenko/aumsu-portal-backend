@@ -10,9 +10,7 @@ type StudentModel struct {
 
 func (studentModel StudentModel) Authorization(login string) (entities.Student, error) {
 	var student entities.Student
-	err := dif.DB.Model(&entities.Student{}).Where(map[string]interface{}{
-		"login": login,
-	}).Preload("StudyGroup").First(&student).Error
+	err := dif.DB.Model(&entities.Student{}).Where("login = ?", login).Preload("StudyGroup").First(&student).Error
 
 	if err != nil {
 		return student, err
@@ -26,9 +24,7 @@ func (studentModel StudentModel) Create(student *entities.Student) error {
 }
 
 func (studentModel StudentModel) CheckUnique(student *entities.Student) bool {
-	err := dif.DB.Model(&entities.Student{}).Where(map[string]interface{}{
-		"login": student.Login,
-	}).Find(&student).Error
+	err := dif.DB.Model(&entities.Student{}).Where("login = ?", student.Login).Find(&student).Error
 
 	return err != nil
 }
