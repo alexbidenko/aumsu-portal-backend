@@ -27,6 +27,6 @@ func main() {
 	controllers.InitStudents(s)
 	controllers.InitMessages(s)
 
-	fmt.Printf("Server starting")
+	fmt.Println("Server starting")
 	log.Fatal(http.ListenAndServe("0.0.0.0:8010", r))
 }
