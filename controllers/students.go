@@ -171,7 +171,7 @@ func updateStudent(w http.ResponseWriter, r *http.Request) {
 	updatedStudent.LastName = student.LastName
 	updatedStudent.Patronymic = student.Patronymic
 	updatedStudent.StudyGroupId = student.StudyGroupId
-	studentModule.Update(updatedStudent.Id, &updatedStudent)
+	studentModule.Update(updatedStudent.ID, &updatedStudent)
 
 	utils.WriteJsonResponse(w, updatedStudent)
 }
@@ -200,7 +200,7 @@ func updatePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	updatedStudent.Password = string(bytes)
-	studentModule.Update(updatedStudent.Id, &updatedStudent)
+	studentModule.Update(updatedStudent.ID, &updatedStudent)
 
 	utils.WriteJsonResponse(w, updatedStudent)
 }
@@ -242,7 +242,7 @@ func updateAvatar(w http.ResponseWriter, r *http.Request) {
 	}
 
 	updatedStudent.Avatar = fileName
-	studentModule.Update(updatedStudent.Id, &updatedStudent)
+	studentModule.Update(updatedStudent.ID, &updatedStudent)
 
 	utils.WriteJsonResponse(w, updatedStudent)
 }

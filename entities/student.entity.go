@@ -2,12 +2,10 @@ package entities
 
 import (
 	"github.com/dgrijalva/jwt-go"
-	"gorm.io/gorm"
 )
 
 type Student struct {
-	gorm.Model
-	Id           int        `json:"id"`
+	Model
 	Login        string     `json:"login" valid:"required,type(string),length(5|255)" gorm:"size:255"`
 	Password     string     `json:"password" valid:"required,type(string),length(8|255)" gorm:"size:255"`
 	Token        string     `json:"token" valid:"required,type(string),length(5|255)" gorm:"size:255"`

@@ -46,7 +46,7 @@ func (studentModel StudentModel) GetByToken(token string) (entities.Student, err
 	return student, nil
 }
 
-func (studentModel StudentModel) Update(id int, student *entities.Student) {
+func (studentModel StudentModel) Update(id uint, student *entities.Student) {
 	var studyGroupId *uint
 	if student.StudyGroupId != 0 {
 		studyGroupId = &student.StudyGroupId

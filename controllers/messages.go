@@ -112,7 +112,7 @@ func sendMessage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	message := entities.Message{
-		From:        student.Id,
+		From:        student.ID,
 		Title:       title,
 		Description: description,
 		Image:       fileName,
@@ -122,7 +122,7 @@ func sendMessage(w http.ResponseWriter, r *http.Request) {
 
 	notificationMessage := &messaging.Message{
 		Data: map[string]string{
-			"sender_id": strconv.Itoa(message.From),
+			"sender_id": strconv.Itoa(int(message.From)),
 		},
 		Notification: &messaging.Notification{
 			Title: message.Title,
