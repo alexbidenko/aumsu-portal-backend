@@ -4,6 +4,7 @@ import (
 	"aumsu.portal.backend/dif"
 	"aumsu.portal.backend/entities"
 	"encoding/json"
+	"errors"
 	"fmt"
 )
 
@@ -33,6 +34,12 @@ func (StudyGroupModel) GetByGroupId(studyGroupId string) (map[string]interface{}
 }
 
 func (StudyGroupModel) CreateByGroupId(studyGroupId uint, data string) (entities.StudyGroupSchedule, error) {
+	var count int64
+	dif.DB.Model(&entities.StudyGroupSchedule{}).Where("study_group_id", studyGroupId).Count(&count)
+	if count > 0 {
+		return entities.StudyGroupSchedule{}, errors.New("schedule already exists")
+	}
+
 	studyGroupSchedule := entities.StudyGroupSchedule{
 		StudyGroupId: studyGroupId,
 		Content:      data,

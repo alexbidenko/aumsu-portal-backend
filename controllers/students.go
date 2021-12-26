@@ -134,7 +134,7 @@ func createSchedule(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.WriteJsonResponse(w, true)
+	utils.WriteJsonResponse(w, nil)
 }
 
 func updateSchedule(w http.ResponseWriter, r *http.Request) {
@@ -154,7 +154,7 @@ func updateSchedule(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.WriteJsonResponse(w, true)
+	utils.WriteJsonResponse(w, nil)
 }
 
 func registration(w http.ResponseWriter, r *http.Request) {
