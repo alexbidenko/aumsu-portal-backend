@@ -5,6 +5,7 @@ import (
 	"aumsu.portal.backend/dif"
 	_ "database/sql"
 	"fmt"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
@@ -27,6 +28,10 @@ func main() {
 	controllers.InitStudents(s)
 	controllers.InitMessages(s)
 
+	allowOrigins := handlers.AllowedOrigins([]string{"*"})
+	allowHeaders := handlers.AllowedHeaders([]string{"Authorization", "Content-Type"})
+	allowMethods := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE"})
+
 	fmt.Println("Server starting")
-	log.Fatal(http.ListenAndServe("0.0.0.0:8010", r))
+	log.Fatal(http.ListenAndServe("0.0.0.0:8010", handlers.CORS(allowOrigins, allowHeaders, allowMethods)(r)))
 }
