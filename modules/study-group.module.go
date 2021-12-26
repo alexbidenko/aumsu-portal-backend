@@ -16,7 +16,7 @@ func (StudyGroupModel) All() []entities.StudyGroup {
 	return studyGroups
 }
 
-func (StudyGroupModel) GetSchedule(studyGroupId string) (map[string]interface{}, error) {
+func (StudyGroupModel) GetByGroupId(studyGroupId string) (map[string]interface{}, error) {
 	var studyGroupSchedule map[string]interface{}
 	err := dif.DB.Model(&entities.StudyGroupSchedule{}).Where("study_group_id", studyGroupId).First(&studyGroupSchedule).Error
 
@@ -30,4 +30,20 @@ func (StudyGroupModel) GetSchedule(studyGroupId string) (map[string]interface{},
 	}
 
 	return studyGroupSchedule, err
+}
+
+func (StudyGroupModel) CreateByGroupId(studyGroupId uint, data string) (entities.StudyGroupSchedule, error) {
+	studyGroupSchedule := entities.StudyGroupSchedule{
+		StudyGroupId: studyGroupId,
+		Content:      data,
+	}
+	err := dif.DB.Model(&entities.StudyGroupSchedule{}).Create(&studyGroupSchedule).Error
+
+	return studyGroupSchedule, err
+}
+
+func (StudyGroupModel) UpdateByGroupId(studyGroupId string, data string) error {
+	err := dif.DB.Model(&entities.StudyGroupSchedule{}).Where("study_group_id = ?", studyGroupId).Update("content", data).Error
+
+	return err
 }

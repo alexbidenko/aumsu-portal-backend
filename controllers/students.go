@@ -39,6 +39,8 @@ func InitStudents(r *mux.Router) {
 	r.HandleFunc("/registration", registration).Methods("POST")
 	r.HandleFunc("/user", getStudent).Methods("GET")
 	r.HandleFunc("/schedule/{id}", getSchedule).Methods("GET")
+	r.HandleFunc("/schedule/{id}", createSchedule).Methods("POST")
+	r.HandleFunc("/schedule/{id}", updateSchedule).Methods("PUT")
 	r.HandleFunc("/user", updateStudent).Methods("PUT")
 	r.HandleFunc("/user/avatar", updateAvatar).Methods("PUT")
 	r.HandleFunc("/user/password", updatePassword).Methods("PUT")
@@ -101,13 +103,58 @@ func getSchedule(w http.ResponseWriter, r *http.Request) {
 	id := mux.Vars(r)["id"]
 
 	var studyGroupModel models.StudyGroupModel
-	schedule, err := studyGroupModel.GetSchedule(id)
+	schedule, err := studyGroupModel.GetByGroupId(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	utils.WriteJsonResponse(w, schedule)
+}
+
+func createSchedule(w http.ResponseWriter, r *http.Request) {
+	id := mux.Vars(r)["id"]
+	x, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	b, err := ioutil.ReadAll(r.Body)
+	defer r.Body.Close()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	var studyGroupModel models.StudyGroupModel
+	_, err = studyGroupModel.CreateByGroupId(uint(x), string(b))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	utils.WriteJsonResponse(w, true)
+}
+
+func updateSchedule(w http.ResponseWriter, r *http.Request) {
+	id := mux.Vars(r)["id"]
+
+	b, err := ioutil.ReadAll(r.Body)
+	defer r.Body.Close()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	var studyGroupModel models.StudyGroupModel
+	err = studyGroupModel.UpdateByGroupId(id, string(b))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	utils.WriteJsonResponse(w, true)
 }
 
 func registration(w http.ResponseWriter, r *http.Request) {
