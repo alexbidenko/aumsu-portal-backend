@@ -31,15 +31,9 @@ func (studentModel StudentModel) CheckExisted(student *entities.Student) bool {
 
 func (studentModel StudentModel) GetByToken(token string) (entities.Student, error) {
 	var student entities.Student
-	err := dif.DB.Model(&entities.Student{}).Where(map[string]interface{}{
-		"token": token,
-	}).Preload("StudyGroup").Find(&student).Error
+	err := dif.DB.Model(&entities.Student{}).Preload("StudyGroup").First(&student, "token = ?", token).Error
 
-	if err != nil {
-		return student, err
-	}
-
-	return student, nil
+	return student, err
 }
 
 func (studentModel StudentModel) Update(id uint, student *entities.Student) {
